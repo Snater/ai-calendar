@@ -1,0 +1,28 @@
+.clndr {
+	[role="button"] {
+		@apply cursor-pointer;
+	}
+
+	.clndr-previous-button,
+	.clndr-next-button {
+		@apply px-3 py-1 text-center select-none hover:bg-sky-300 transition-colors;
+	}
+
+	.days {
+		.item {
+			@apply hover:bg-slate-200;
+
+			&.event {
+				@apply bg-amber-300 hover:bg-amber-400;
+			}
+
+			&.now {
+				@apply underline;
+			}
+
+			&.selected {
+				@apply bg-orange-400 hover:bg-orange-500;
+			}
+		}
+	}
+}
