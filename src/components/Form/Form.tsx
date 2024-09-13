@@ -79,7 +79,7 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 				</div>
 			</label>
 			<div className="text-red-700 mb-4">
-				{'code' in state && state.description}
+				{'code' in state && `${state.code === 'unknownAction' ? 'Unknown action: ' : ''}${state.description}`}
 			</div>
 		</form>
 	);
