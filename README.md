@@ -55,3 +55,10 @@ Example:
 ```
 There will be a company party this Friday in the office.
 ```
+
+### Remove calendar events
+
+Example:
+```
+I need to cancel going to the company party this Friday in the office.
+```

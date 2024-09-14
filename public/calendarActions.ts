@@ -4,12 +4,18 @@ export type CalendarActions = {
 
 export type Action =
 	| AddEventAction
+	| RemoveEventAction
 	| UnknownAction
 
 export type AddEventAction = {
 	type: 'add event';
 	event: Event;
 }
+
+export type RemoveEventAction = {
+	type: 'remove event';
+	event: Event;
+};
 
 export interface UnknownAction {
 	type: 'unknown';
@@ -18,7 +24,7 @@ export interface UnknownAction {
 
 export type Event = {
 	start: string
-	end: string
+	end?: string
 	title: string
 	description: string
 	location?: string

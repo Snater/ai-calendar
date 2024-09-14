@@ -1,5 +1,5 @@
 import {Dispatch, KeyboardEvent, SetStateAction, useEffect} from 'react';
-import {CalendarActions} from '@/../public/calendarActions';
+import {CalendarActions, Event} from '@/../public/calendarActions';
 import {CalendarDaysIcon} from '@heroicons/react/16/solid';
 import {execute} from '@/app/actions';
 import {useFormState} from 'react-dom';
@@ -8,15 +8,19 @@ export type FormState = CalendarActions
 	| {actions?: never, code?: never, description?: never}
 	| {actions?: never, code: string, description: string | string[]}
 
-export type CalendarEvent = {
-	id: string
-	title: string
-	description: string
+type Props = {
+	clndrEvents: Event[],
+	setClndrEvents: Dispatch<SetStateAction<Event[]>>
 }
 
-type Props = {
-	clndrEvents: CalendarEvent[],
-	setClndrEvents: Dispatch<SetStateAction<CalendarEvent[]>>
+function isSameEvent(eventA: Event, eventB: Event) {
+	return (
+		eventA.start === eventB.start
+		&& eventA.end === eventB.end
+		&& eventA.title === eventB.title
+		&& eventA.description === eventB.description
+		&& eventA.location === eventB.location
+	);
 }
 
 const initialState: FormState = {};
@@ -24,7 +28,7 @@ const initialState: FormState = {};
 export default function Form({clndrEvents, setClndrEvents}: Props) {
 
 	const [state, formAction] = useFormState<FormState, FormData>(
-		execute,
+		(_state, formData) => execute(formData, clndrEvents),
 		initialState
 	);
 
@@ -32,6 +36,7 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 		if (event.key === 'Enter' || event.key === 'NumpadEnter') {
 			event.preventDefault();
 			event.currentTarget.form?.requestSubmit();
+			event.currentTarget.value = '';
 		}
 	}
 
@@ -42,17 +47,33 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 
 		const newEvents = state.actions
 			.filter(action => action.type === 'add event')
-			.map(action => ({
-				...action.event,
-				id: `${action.event.start}|${action.event.end}|${action.event.title}`,
-			}));
+			.map(addEventAction => addEventAction.event);
 
 		const unregisteredEvents = newEvents.filter(event => {
-			return !clndrEvents.find(existingEvent => existingEvent.id === event.id)
+			return !clndrEvents.find(existingEvent => isSameEvent(existingEvent, event))
 		});
 
 		if (unregisteredEvents.length > 0) {
 			setClndrEvents([...clndrEvents, ...unregisteredEvents]);
+		}
+
+	}, [clndrEvents, setClndrEvents, state]);
+
+	useEffect(() => {
+		if (!state.actions) {
+			return;
+		}
+
+		const eventsToRemove = state.actions
+			.filter(action => action.type === 'remove event')
+			.map(removeEventAction => removeEventAction.event);
+
+		const remainingEvents = clndrEvents.filter(event => {
+			return !eventsToRemove.find(eventToRemove => isSameEvent(eventToRemove, event))
+		});
+
+		if (remainingEvents.length !== clndrEvents.length) {
+			setClndrEvents(remainingEvents);
 		}
 
 	}, [clndrEvents, setClndrEvents, state]);

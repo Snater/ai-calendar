@@ -6,7 +6,7 @@ import {createTypeScriptJsonValidator} from 'typechat/ts';
 import {promises as fs} from 'fs';
 import getConfig from 'next/config';
 import path from 'path';
-import type {CalendarActions} from '@/../public/calendarActions';
+import type {CalendarActions, Event} from '@/../public/calendarActions';
 import type {TypeChatLanguageModel} from 'typechat';
 
 async function processDemo(command: string) {
@@ -23,7 +23,7 @@ async function processDemo(command: string) {
 	return demo[command] ?? {code: 'unknownAction', description: command};
 }
 
-export async function execute(_state: FormState, formData: FormData): Promise<FormState> {
+export async function execute(formData: FormData, clndrEvents: Event[]): Promise<FormState> {
 	const command = formData.get('command') as string;
 
 	if (process.env.NEXT_PUBLIC_MODE === 'demo') {
@@ -60,7 +60,10 @@ export async function execute(_state: FormState, formData: FormData): Promise<Fo
 		return {code: 'typechat', description: error instanceof Error ? error.message : 'unknown'};
 	}
 
-	const response = await translator.translate(command);
+	const response = await translator.translate(
+		command,
+		`Given the following events in JSON format: ${JSON.stringify(clndrEvents)}`
+	);
 
 	if (!response.success) {
 		return {code: 'generic', description: response.message};
