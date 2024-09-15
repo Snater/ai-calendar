@@ -1,12 +1,15 @@
 import {Dispatch, KeyboardEvent, SetStateAction, useEffect} from 'react';
 import {CalendarActions, Event} from '@/../public/calendarActions';
 import {CalendarDaysIcon} from '@heroicons/react/16/solid';
+import ErrorMessage from '@/components/ErrorMessage';
 import {execute} from '@/app/actions';
 import {useFormState} from 'react-dom';
 
-export type FormState = CalendarActions
+export type ErrorState =
 	| {actions?: never, code?: never, description?: never}
 	| {actions?: never, code: string, description: string | string[]}
+
+export type FormState = CalendarActions | ErrorState
 
 type Props = {
 	clndrEvents: Event[],
@@ -23,13 +26,11 @@ function isSameEvent(eventA: Event, eventB: Event) {
 	);
 }
 
-const initialState: FormState = {};
-
 export default function Form({clndrEvents, setClndrEvents}: Props) {
 
 	const [state, formAction] = useFormState<FormState, FormData>(
 		(_state, formData) => execute(formData, clndrEvents),
-		initialState
+		{},
 	);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -99,9 +100,7 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 					/>
 				</div>
 			</label>
-			<div className="text-red-700 mb-4">
-				{'code' in state && `${state.code === 'unknownAction' ? 'Unknown action: ' : ''}${state.description}`}
-			</div>
+			<ErrorMessage errorState={'code' in state && state.code ? state : undefined}/>
 		</form>
 	);
 }
