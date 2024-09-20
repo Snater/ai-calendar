@@ -6,25 +6,20 @@ import {default as ClndrClass} from 'clndr2';
 import {ClndrItemEventParameters} from 'clndr2/dist/types';
 import EventList from '@/components/EventList';
 import Form from '@/components/Form';
-
-export type CalendarEvent = {
-	id: string
-	title: string
-	description: string
-}
+import type {Event} from '@/../public/calendarActions';
 
 export default function Home() {
 	const clndrRef = useRef<Clndr>(null);
 
-	const [events, setEvents] = useState<CalendarEvent[]>([]);
-	const [clndrEvents, setClndrEvents] = useState<CalendarEvent[]>([]);
+	const [events, setEvents] = useState<Event[]>([]);
+	const [clndrEvents, setClndrEvents] = useState<Event[]>([]);
 
 	async function onCalendarClick(this: ClndrClass, target: ClndrItemEventParameters) {
 		if (!target.date || !target.selectedDateChanged) {
 			return;
 		}
 
-		const events = target.events as CalendarEvent[];
+		const events = target.events as Event[];
 
 		setEvents(events);
 	}
@@ -40,7 +35,11 @@ export default function Home() {
 					<h1
 						className="text-center font-thin text-2xl sm:text-3xl md:text-4xl mb-4"
 					>A.I. Calendar Interface</h1>
-					<Form clndrEvents={clndrEvents} setClndrEvents={setClndrEvents}/>
+					<Form
+						clndrEvents={clndrEvents}
+						clndrRef={clndrRef}
+						setClndrEvents={setClndrEvents}
+					/>
 					<Clndr
 						className="mb-3"
 						events={clndrEvents}

@@ -1,9 +1,10 @@
-import {Dispatch, KeyboardEvent, SetStateAction, useEffect} from 'react';
-import {CalendarActions, Event} from '@/../public/calendarActions';
+import {Dispatch, KeyboardEvent, RefObject, SetStateAction, useEffect} from 'react';
 import {CalendarDaysIcon} from '@heroicons/react/16/solid';
+import Clndr from '@/components/Clndr';
 import ErrorMessage from '@/components/ErrorMessage';
 import {execute} from '@/app/actions';
 import {useFormState} from 'react-dom';
+import type {CalendarActions, Event} from '@/../public/calendarActions';
 
 export type ErrorState =
 	| {actions?: never, code?: never, description?: never}
@@ -13,6 +14,7 @@ export type FormState = CalendarActions | ErrorState
 
 type Props = {
 	clndrEvents: Event[],
+	clndrRef: RefObject<Clndr>
 	setClndrEvents: Dispatch<SetStateAction<Event[]>>
 }
 
@@ -26,7 +28,7 @@ function isSameEvent(eventA: Event, eventB: Event) {
 	);
 }
 
-export default function Form({clndrEvents, setClndrEvents}: Props) {
+export default function Form({clndrEvents, clndrRef, setClndrEvents}: Props) {
 
 	const [state, formAction] = useFormState<FormState, FormData>(
 		(_state, formData) => execute(formData, clndrEvents),
@@ -48,7 +50,7 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 
 		const newEvents = state.actions
 			.filter(action => action.type === 'add event')
-			.map(addEventAction => addEventAction.event);
+			.map(action => action.event);
 
 		const unregisteredEvents = newEvents.filter(event => {
 			return !clndrEvents.find(existingEvent => isSameEvent(existingEvent, event))
@@ -67,7 +69,7 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 
 		const eventsToRemove = state.actions
 			.filter(action => action.type === 'remove event')
-			.map(removeEventAction => removeEventAction.event);
+			.map(action => action.event);
 
 		const remainingEvents = clndrEvents.filter(event => {
 			return !eventsToRemove.find(eventToRemove => isSameEvent(eventToRemove, event))
@@ -78,6 +80,21 @@ export default function Form({clndrEvents, setClndrEvents}: Props) {
 		}
 
 	}, [clndrEvents, setClndrEvents, state]);
+
+	useEffect(() => {
+		if (!state.actions) {
+			return;
+		}
+
+		const foundEvent = state.actions
+			.filter(action => action.type === 'find event')
+			.map(action => action.event);
+
+		if (foundEvent.length > 0) {
+			clndrRef.current?.clndr?.setDate(foundEvent[0].start);
+		}
+
+	}, [clndrEvents, setClndrEvents, clndrRef, state]);
 
 	return (
 		<form action={formAction} className="mb-3">

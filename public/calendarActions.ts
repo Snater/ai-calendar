@@ -5,6 +5,7 @@ export type CalendarActions = {
 export type Action =
 	| AddEventAction
 	| RemoveEventAction
+	| FindEventAction
 	| UnknownAction
 
 export type AddEventAction = {
@@ -14,6 +15,11 @@ export type AddEventAction = {
 
 export type RemoveEventAction = {
 	type: 'remove event';
+	event: Event;
+};
+
+export type FindEventAction = {
+	type: 'find event';
 	event: Event;
 };
 

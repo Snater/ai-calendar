@@ -114,5 +114,19 @@
 				}
 			}
 		]
+	},
+	"find event": {
+		"actions": [
+			{
+				"type": "find event",
+				"event": {
+					"start": "2024-09-27T16:00:00",
+					"end": "2024-09-27T18:00:00",
+					"title": "Company Party",
+					"description": "Party with colleagues.",
+					"location": "Office"
+				}
+			}
+		]
 	}
 }
