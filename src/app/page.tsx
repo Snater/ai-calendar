@@ -29,11 +29,11 @@ export default function Home() {
 			className="flex min-h-screen flex-col justify-center overflow-hidden py-6 sm:py-12"
 		>
 			<div
-				className="bg-white px-5 pt-8 pb-6 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10"
+				className="bg-white px-5 pt-8 pb-6 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-[400px] sm:rounded-lg sm:px-10"
 			>
 				<main>
 					<h1
-						className="text-center font-thin text-2xl sm:text-3xl md:text-4xl mb-4"
+						className="text-center font-thin text-2xl sm:text-3xl mb-4"
 					>A.I. Calendar Interface</h1>
 					<Form
 						clndrEvents={clndrEvents}

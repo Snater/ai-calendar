@@ -1,4 +1,5 @@
 import {Dispatch, KeyboardEvent, RefObject, SetStateAction, useEffect} from 'react';
+import CalendarActionProcessor from '@/lib/CalendarActionProcessor';
 import {CalendarDaysIcon} from '@heroicons/react/16/solid';
 import Clndr from '@/components/Clndr';
 import ErrorMessage from '@/components/ErrorMessage';
@@ -16,16 +17,6 @@ type Props = {
 	clndrEvents: Event[],
 	clndrRef: RefObject<Clndr>
 	setClndrEvents: Dispatch<SetStateAction<Event[]>>
-}
-
-function isSameEvent(eventA: Event, eventB: Event) {
-	return (
-		eventA.start === eventB.start
-		&& eventA.end === eventB.end
-		&& eventA.title === eventB.title
-		&& eventA.description === eventB.description
-		&& eventA.location === eventB.location
-	);
 }
 
 export default function Form({clndrEvents, clndrRef, setClndrEvents}: Props) {
@@ -48,53 +39,31 @@ export default function Form({clndrEvents, clndrRef, setClndrEvents}: Props) {
 			return;
 		}
 
-		const newEvents = state.actions
-			.filter(action => action.type === 'add event')
-			.map(action => action.event);
+		let updatedEvents: Event[];
 
-		const unregisteredEvents = newEvents.filter(event => {
-			return !clndrEvents.find(existingEvent => isSameEvent(existingEvent, event))
-		});
+		updatedEvents = CalendarActionProcessor.addEvents(
+			state.actions.filter(action => action.type === 'add event'),
+			clndrEvents
+		);
 
-		if (unregisteredEvents.length > 0) {
-			setClndrEvents([...clndrEvents, ...unregisteredEvents]);
+		updatedEvents = CalendarActionProcessor.removeEvents(
+			state.actions.filter(action => action.type === 'remove event'),
+			updatedEvents
+		);
+
+		if (!CalendarActionProcessor.areSameEvents(updatedEvents, clndrEvents)) {
+			setClndrEvents(updatedEvents);
 		}
 
-	}, [clndrEvents, setClndrEvents, state]);
+		const foundEvent = CalendarActionProcessor.findEvent(
+			state.actions.filter(action => action.type === 'find event'),
+			updatedEvents
+		);
 
-	useEffect(() => {
-		if (!state.actions) {
-			return;
+		if (foundEvent) {
+			clndrRef.current?.clndr?.setDate(foundEvent.start);
 		}
-
-		const eventsToRemove = state.actions
-			.filter(action => action.type === 'remove event')
-			.map(action => action.event);
-
-		const remainingEvents = clndrEvents.filter(event => {
-			return !eventsToRemove.find(eventToRemove => isSameEvent(eventToRemove, event))
-		});
-
-		if (remainingEvents.length !== clndrEvents.length) {
-			setClndrEvents(remainingEvents);
-		}
-
-	}, [clndrEvents, setClndrEvents, state]);
-
-	useEffect(() => {
-		if (!state.actions) {
-			return;
-		}
-
-		const foundEvent = state.actions
-			.filter(action => action.type === 'find event')
-			.map(action => action.event);
-
-		if (foundEvent.length > 0) {
-			clndrRef.current?.clndr?.setDate(foundEvent[0].start);
-		}
-
-	}, [clndrEvents, setClndrEvents, clndrRef, state]);
+	}, [clndrEvents, clndrRef, setClndrEvents, state]);
 
 	return (
 		<form action={formAction} className="mb-3">
