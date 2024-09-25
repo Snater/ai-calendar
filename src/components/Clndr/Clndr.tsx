@@ -51,7 +51,10 @@ export default class Clndr extends Component<ClndrOptions & {className: string},
 		if (this.elementRef.current) {
 			const selectedDate = this.clndr?.getSelectedDate();
 			this.clndr?.destroy();
-			this.clndr = new ClndrClass(this.elementRef.current, {...this.props, selectedDate});
+			this.clndr = new ClndrClass(
+				this.elementRef.current,
+				{...this.props, selectedDate, startOn: selectedDate}
+			);
 		}
 	}
 }

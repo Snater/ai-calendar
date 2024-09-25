@@ -29,9 +29,9 @@ export interface UnknownAction {
 }
 
 export type Event = {
-	start: string
-	end?: string
+	start: Date
+	end?: Date
 	title: string
-	description: string
+	description?: string
 	location?: string
 }

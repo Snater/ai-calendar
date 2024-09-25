@@ -8,8 +8,23 @@ import getConfig from 'next/config';
 import path from 'path';
 import type {CalendarActions, Event} from '@/../public/calendarActions';
 import type {TypeChatLanguageModel} from 'typechat';
+import {GeminiInterface} from '@/lib/GeminiInterface';
 
-async function processDemo(command: string) {
+export async function execute(formData: FormData, clndrEvents: Event[]): Promise<FormState> {
+	const command = formData.get('command') as string;
+
+	const preamble = `The following calendar events are given in JSON format:\n\`\`\`\n${JSON.stringify(clndrEvents)}\`\`\``;
+
+	if (process.env.NEXT_PUBLIC_MODE === 'gemini') {
+		return processGemini(command, preamble);
+	} else if (process.env.NEXT_PUBLIC_MODE === 'openai') {
+		return processOpenAi(command, preamble);
+	}
+
+	return processDemo(command);
+}
+
+async function processDemo(command: string): Promise<FormState> {
 	let demo: Record<string, CalendarActions>;
 
 	try {
@@ -23,13 +38,31 @@ async function processDemo(command: string) {
 	return demo[command] ?? {code: 'unknownAction', description: command};
 }
 
-export async function execute(formData: FormData, clndrEvents: Event[]): Promise<FormState> {
-	const command = formData.get('command') as string;
-
-	if (process.env.NEXT_PUBLIC_MODE === 'demo') {
-		return processDemo(command);
+async function processGemini(command: string, preamble: string): Promise<FormState> {
+	if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+		return {
+			code: 'config',
+			description: 'Missing `NEXT_PUBLIC_GEMINI_API_KEY` environment variable.',
+		};
 	}
 
+	const geminiInterface = new GeminiInterface(
+		process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+		process.env.NEXT_PUBLIC_GEMINI_MODEL ?? 'gemini-1.5-flash',
+		path.join(getConfig().serverRuntimeConfig.PROJECT_ROOT, 'public', 'calendarActions.ts')
+	);
+
+	try {
+		return geminiInterface.translate(command, preamble);
+	} catch(error) {
+		return {
+			code: 'translation_failed',
+			description: error instanceof Error ? error.message : 'unknown',
+		};
+	}
+}
+
+async function processOpenAi(command: string, preamble: string): Promise<FormState> {
 	let model: TypeChatLanguageModel;
 
 	try {
@@ -60,10 +93,7 @@ export async function execute(formData: FormData, clndrEvents: Event[]): Promise
 		return {code: 'typechat', description: error instanceof Error ? error.message : 'unknown'};
 	}
 
-	const response = await translator.translate(
-		command,
-		`Given the following events in JSON format: ${JSON.stringify(clndrEvents)}`
-	);
+	const response = await translator.translate(command, preamble);
 
 	if (!response.success) {
 		return {code: 'generic', description: response.message};
