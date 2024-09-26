@@ -17,9 +17,17 @@ type Props = {
 	clndrEvents: Event[],
 	clndrRef: RefObject<Clndr>
 	setClndrEvents: Dispatch<SetStateAction<Event[]>>
+	setEvents: Dispatch<SetStateAction<Event[]>>
+	setSelectedDate: Dispatch<SetStateAction<Date | undefined>>
 }
 
-export default function Form({clndrEvents, clndrRef, setClndrEvents}: Props) {
+export default function Form({
+	clndrEvents,
+	clndrRef,
+	setClndrEvents,
+	setEvents,
+	setSelectedDate,
+}: Props) {
 
 	const [state, formAction] = useFormState<FormState, FormData>(
 		(_state, formData) => execute(formData, clndrEvents),
@@ -31,6 +39,8 @@ export default function Form({clndrEvents, clndrRef, setClndrEvents}: Props) {
 			event.preventDefault();
 			event.currentTarget.form?.requestSubmit();
 			event.currentTarget.value = '';
+			setSelectedDate(undefined);
+			setEvents([]);
 		}
 	}
 

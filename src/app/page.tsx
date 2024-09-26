@@ -13,6 +13,7 @@ export default function Home() {
 
 	const [events, setEvents] = useState<Event[]>([]);
 	const [clndrEvents, setClndrEvents] = useState<Event[]>([]);
+	const [selectedDate, setSelectedDate] = useState<Date>();
 
 	async function onCalendarClick(this: ClndrClass, target: ClndrItemEventParameters) {
 		if (!target.date || !target.selectedDateChanged) {
@@ -21,6 +22,7 @@ export default function Home() {
 
 		const events = target.events as Event[];
 
+		setSelectedDate(target.date);
 		setEvents(events);
 	}
 
@@ -39,6 +41,8 @@ export default function Home() {
 						clndrEvents={clndrEvents}
 						clndrRef={clndrRef}
 						setClndrEvents={setClndrEvents}
+						setEvents={setEvents}
+						setSelectedDate={setSelectedDate}
 					/>
 					<Clndr
 						className="mb-3"
@@ -46,6 +50,7 @@ export default function Home() {
 						on={{click: onCalendarClick}}
 						ref={clndrRef}
 						render={compiledTemplate}
+						selectedDate={selectedDate}
 						trackSelectedDate
 						weekStartsOn={1}
 					/>
