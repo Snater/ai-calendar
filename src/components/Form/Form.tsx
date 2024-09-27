@@ -3,9 +3,11 @@ import CalendarActionProcessor from '@/lib/CalendarActionProcessor';
 import {CalendarDaysIcon} from '@heroicons/react/16/solid';
 import Clndr from '@/components/Clndr';
 import ErrorMessage from '@/components/ErrorMessage';
+import Spinner from '@/components/Form/Spinner';
 import {execute} from '@/app/actions';
 import {useFormState} from 'react-dom';
 import type {CalendarActions, Event} from '@/../public/calendarActions';
+import Input from '@/components/Form/Input';
 
 export type ErrorState =
 	| {actions?: never, code?: never, description?: never}
@@ -86,14 +88,10 @@ export default function Form({
 					<CalendarDaysIcon
 						className="pointer-events-none w-8 h-8 absolute top-1/2 transform -translate-y-1/2 left-1"
 					/>
-					<input
-						className="form-input w-full rounded-md border-0 py-1.5 pl-10 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-						id="command"
-						name="command"
-						onKeyDown={handleKeyDown}
-						placeholder={process.env.NEXT_PUBLIC_MODE === 'demo' ? 'add event' : 'Company party this Friday.'}
-						type="text"
+					<Input
+						handleKeyDown={handleKeyDown}
 					/>
+					<Spinner/>
 				</div>
 			</label>
 			<ErrorMessage errorState={'code' in state && state.code ? state : undefined}/>

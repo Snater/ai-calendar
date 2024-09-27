@@ -35,6 +35,8 @@ async function processDemo(command: string): Promise<FormState> {
 		return {code: 'demofile', description: error instanceof Error ? error.message : 'unknown'};
 	}
 
+	await new Promise(resolve => setTimeout(resolve, 1000));
+
 	return demo[command] ?? {code: 'unknownAction', description: command};
 }
 
