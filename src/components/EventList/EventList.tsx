@@ -1,18 +1,15 @@
 import {animated, useSpring} from '@react-spring/web';
 import {useLayoutEffect, useRef, useState} from 'react';
-import {CalendarEvent} from '@/app/page';
+import useStore from '@/store';
 
-type Props = {
-	events: CalendarEvent[];
-}
-
-export default function EventList({events}: Props) {
+export default function EventList() {
+	const eventList = useStore(state => state.eventList);
 	const eventsRef = useRef<HTMLDivElement>(null);
 	const [refHeight, setRefHeight] = useState(0);
 
 	const {height} = useSpring({
 		from: {height: 0},
-		to: {height: events.length === 0 ? 0 : refHeight},
+		to: {height: eventList.length === 0 ? 0 : refHeight},
 	});
 
 	useLayoutEffect(() => {
@@ -27,14 +24,14 @@ export default function EventList({events}: Props) {
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		}
-	}, [events]);
+	}, [eventList]);
 
 	return (
 		<animated.div className="events overflow-hidden" style={{height}}>
 			<div ref={eventsRef}>
 				<h2 className="text-center border-b mb-2 pb-1">Events</h2>
 				<ul className="events-list">{
-					events.map(event => (
+					eventList.map(event => (
 						<li key={event.title} className="event mb-2">
 							<div className="font-bold text-slate-500">{event.title}</div>
 							<div className="text-sm">{event.description}</div>

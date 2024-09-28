@@ -1,6 +1,7 @@
 import './globals.scss';
 import type {Metadata} from 'next';
 import {ReactNode} from 'react';
+import {StoreProvider} from '@/store';
 import localFont from 'next/font/local';
 
 const geistSans = localFont({
@@ -24,7 +25,9 @@ export default function RootLayout({children}: Readonly<{children: ReactNode}>) 
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} text-slate-950 bg-slate-50`}>
-				{children}
+				<StoreProvider>
+					{children}
+				</StoreProvider>
 			</body>
 		</html>
 	);

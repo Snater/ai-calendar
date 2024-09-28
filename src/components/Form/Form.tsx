@@ -1,13 +1,14 @@
-import {Dispatch, KeyboardEvent, RefObject, SetStateAction, useEffect} from 'react';
+import type {CalendarActions, Event} from '@/../public/calendarActions';
+import {KeyboardEvent, RefObject, useEffect} from 'react';
 import CalendarActionProcessor from '@/lib/CalendarActionProcessor';
 import {CalendarDaysIcon} from '@heroicons/react/16/solid';
 import Clndr from '@/components/Clndr';
 import ErrorMessage from '@/components/ErrorMessage';
+import Input from '@/components/Form/Input';
 import Spinner from '@/components/Form/Spinner';
 import {execute} from '@/app/actions';
 import {useFormState} from 'react-dom';
-import type {CalendarActions, Event} from '@/../public/calendarActions';
-import Input from '@/components/Form/Input';
+import useStore from '@/store';
 
 export type ErrorState =
 	| {actions?: never, code?: never, description?: never}
@@ -16,20 +17,15 @@ export type ErrorState =
 export type FormState = CalendarActions | ErrorState
 
 type Props = {
-	clndrEvents: Event[],
 	clndrRef: RefObject<Clndr>
-	setClndrEvents: Dispatch<SetStateAction<Event[]>>
-	setEvents: Dispatch<SetStateAction<Event[]>>
-	setSelectedDate: Dispatch<SetStateAction<Date | undefined>>
 }
 
-export default function Form({
-	clndrEvents,
-	clndrRef,
-	setClndrEvents,
-	setEvents,
-	setSelectedDate,
-}: Props) {
+export default function Form({clndrRef}: Props) {
+
+	const clndrEvents = useStore(state => state.clndrEvents);
+	const setClndrEvents = useStore(state => state.setClndrEvents);
+	const setEventList = useStore(state => state.setEventList);
+	const setSelectedDate = useStore(state => state.setSelectedDate);
 
 	const [state, formAction] = useFormState<FormState, FormData>(
 		(_state, formData) => execute(formData, clndrEvents),
@@ -42,7 +38,7 @@ export default function Form({
 			event.currentTarget.form?.requestSubmit();
 			event.currentTarget.value = '';
 			setSelectedDate(undefined);
-			setEvents([]);
+			setEventList([]);
 		}
 	}
 
