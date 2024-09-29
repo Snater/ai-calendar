@@ -14,6 +14,8 @@ export type Store = {
 	setClndrEvents: (events: Event[]) => void
 	setEventList: (events: Event[]) => void
 	setSelectedDate: (date?: Date) => void
+	setStartOn: (date: Date) => void
+	startOn: Date
 }
 
 export const createAppStore = () => {
@@ -21,8 +23,10 @@ export const createAppStore = () => {
 		clndrEvents: [],
 		eventList: [],
 		selectedDate: undefined,
+		startOn: new Date(),
 		setClndrEvents: events => set(() => ({clndrEvents: events})),
 		setEventList: events => set(() => ({eventList: events})),
 		setSelectedDate: date => set(() => ({selectedDate: date})),
+		setStartOn: date => set(() => ({startOn: date})),
 	}));
 }

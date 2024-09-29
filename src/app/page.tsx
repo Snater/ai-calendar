@@ -1,11 +1,11 @@
 'use client'
 
+import type {ClndrItemEventParameters, NavigationEventParameters} from 'clndr2/dist/types';
+import type {Event} from '@/../public/calendarActions';
 import Clndr, {compiledTemplate} from '@/components/Clndr';
 import {default as ClndrClass} from 'clndr2';
-import {ClndrItemEventParameters} from 'clndr2/dist/types';
 import EventList from '@/components/EventList';
 import Form from '@/components/Form';
-import type {Event} from '@/../public/calendarActions';
 import {useRef} from 'react';
 import useStore from '@/store';
 
@@ -16,6 +16,8 @@ export default function Home() {
 	const selectedDate = useStore(state => state.selectedDate);
 	const setEventList = useStore(state => state.setEventList);
 	const setSelectedDate = useStore(state => state.setSelectedDate);
+	const setStartOn = useStore(state => state.setStartOn);
+	const startOn = useStore(state => state.startOn);
 
 	async function onCalendarClick(this: ClndrClass, target: ClndrItemEventParameters) {
 		if (!target.date || !target.selectedDateChanged) {
@@ -26,6 +28,10 @@ export default function Home() {
 
 		setSelectedDate(target.date);
 		setEventList(events);
+	}
+
+	function onCalendarNavigate(this: ClndrClass, {interval}: NavigationEventParameters) {
+		setStartOn(interval.start);
 	}
 
 	return (
@@ -43,10 +49,14 @@ export default function Home() {
 					<Clndr
 						className="mb-3"
 						events={clndrEvents}
-						on={{click: onCalendarClick}}
+						on={{
+							click: onCalendarClick,
+							navigate: onCalendarNavigate,
+						}}
 						ref={clndrRef}
 						render={compiledTemplate}
 						selectedDate={selectedDate}
+						startOn={startOn}
 						trackSelectedDate
 						weekStartsOn={1}
 					/>
