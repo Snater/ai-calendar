@@ -12,6 +12,10 @@
 		.item {
 			@apply hover:bg-slate-200;
 
+			&.adjacent {
+				@apply bg-slate-100 text-slate-600 hover:bg-slate-200;
+			}
+
 			&.event {
 				@apply bg-amber-300 hover:bg-amber-400;
 			}

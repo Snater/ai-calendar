@@ -49,6 +49,7 @@ export default function Home() {
 					<Clndr
 						className="mb-3"
 						events={clndrEvents}
+						forceSixRows
 						on={{
 							click: onCalendarClick,
 							navigate: onCalendarNavigate,
